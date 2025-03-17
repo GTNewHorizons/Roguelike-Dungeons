@@ -46,17 +46,17 @@ public class ItemOre extends ItemBase {
                     break;
                 case 1:
                     randomizer.add(new WeightedRandomLoot(Items.diamond, 0, 1, 4, 1));
-                    randomizer.add(new WeightedRandomLoot(Items.gold_ingot, 0, 1, 40, 50));
+                    randomizer.add(new WeightedRandomLoot(Items.gold_ingot, 0, 1, 3, 5));
                     randomizer.add(new WeightedRandomLoot(Items.gold_nugget, 0, 1, 4, 10));
                     randomizer.add(new WeightedRandomLoot(Items.iron_ingot, 0, 1, 2, 20));
-                    randomizer.add(new WeightedRandomLoot(Items.coal, 0, 30, 3, 10));
+                    randomizer.add(new WeightedRandomLoot(Items.coal, 0, 1, 3, 10));
                     break;
                 case 0:
-                    randomizer.add(new WeightedRandomLoot(Items.diamond, 0, 1, 40, 1));
-                    randomizer.add(new WeightedRandomLoot(Items.gold_ingot, 0, 1, 1, 30));
+                    randomizer.add(new WeightedRandomLoot(Items.diamond, 0, 1, 4, 1));
+                    randomizer.add(new WeightedRandomLoot(Items.gold_ingot, 0, 1, 1, 3));
                     randomizer.add(new WeightedRandomLoot(Items.gold_nugget, 0, 1, 2, 15));
                     randomizer.add(new WeightedRandomLoot(Items.iron_ingot, 0, 1, 1, 50));
-                    randomizer.add(new WeightedRandomLoot(Items.coal, 0, 30, 2, 30));
+                    randomizer.add(new WeightedRandomLoot(Items.coal, 0, 1, 2, 30));
                     break;
                 default:
                     randomizer.add(new WeightedRandomLoot(Items.coal, 1));
