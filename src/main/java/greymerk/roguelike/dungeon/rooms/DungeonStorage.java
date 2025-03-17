@@ -130,6 +130,7 @@ public class DungeonStorage extends DungeonBase {
         Collections.shuffle(spaces);
         Treasure.generate(editor, rand, spaces.remove(0), Treasure.SUPPLIES, settings.getDifficulty(origin));
         Treasure.generate(editor, rand, spaces.remove(0), Treasure.BLOCKS, settings.getDifficulty(origin));
+        Treasure.generate(editor, rand, spaces.remove(0), Treasure.ORE, settings.getDifficulty(origin));
         return true;
     }
 

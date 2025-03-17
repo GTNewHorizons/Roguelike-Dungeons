@@ -258,7 +258,7 @@ public class DungeonOssuary extends DungeonBase {
         cursor.add(Cardinal.DOWN);
         if (editor.isAirBlock(cursor)) return;
 
-        if (rand.nextInt(15) == 0) {
+        if (rand.nextInt(10) == 0) {
             Skull.set(editor, rand, origin, dir, Skull.WITHER);
             return;
         }

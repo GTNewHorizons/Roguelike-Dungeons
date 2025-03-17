@@ -84,13 +84,13 @@ public class ItemArmour extends ItemBase {
                 switch (quality) {
 
                     case DIAMOND:
-                        return new ItemStack(Items.diamond_helmet);
+                        return new ItemStack(Items.diamond_boots);
                     case GOLD:
-                        return new ItemStack(Items.golden_helmet);
+                        return new ItemStack(Items.golden_boots);
                     case IRON:
-                        return new ItemStack(Items.iron_helmet);
+                        return new ItemStack(Items.iron_boots);
                     case STONE:
-                        return new ItemStack(Items.chainmail_helmet);
+                        return new ItemStack(Items.chainmail_boots);
                     default:
                         ItemStack item = new ItemStack(Items.leather_boots);
                         dyeArmor(item, rand.nextInt(256), rand.nextInt(255), rand.nextInt(255));

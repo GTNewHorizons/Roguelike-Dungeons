@@ -95,7 +95,7 @@ public class SegmentTomb extends SegmentBase {
                 editor,
                 rand,
                 cursor,
-                rand.nextBoolean() ? Treasure.ARMOUR : Treasure.WEAPONS,
+                rand.nextBoolean() ? Treasure.ARMOUR : Treasure.ORE,
                 Dungeon.getLevel(cursor.getY()));
 
     }
