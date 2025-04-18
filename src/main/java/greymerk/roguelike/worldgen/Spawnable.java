@@ -21,8 +21,7 @@ public class Spawnable {
         name = data.get("name").getAsString();
         equip = data.has("equip") ? data.get("equip").getAsBoolean() : true;
         if (data.has("meta")) {
-            JsonObject metadata = data.get("meta").getAsJsonObject();
-            this.meta = JsonNBT.jsonToCompound(metadata);
+            this.meta = JsonNBT.jsonToCompound(data.get("meta"));
         }
     }
 
