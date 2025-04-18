@@ -78,7 +78,9 @@ public class WeightedRandomLoot implements Comparable<WeightedRandomLoot>, IWeig
             max = 1;
         }
 
-        this.nbt = JsonNBT.jsonToCompound(json.get("nbt"));
+        if (json.has("nbt")) {
+            this.nbt = JsonNBT.jsonToCompound(json.get("nbt"));
+        }
     }
 
     public WeightedRandomLoot(Block block, int i) {
