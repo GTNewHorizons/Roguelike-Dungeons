@@ -23,8 +23,7 @@ import org.apache.logging.log4j.Logger;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
-import greymerk.roguelike.config.RogueConfig;
+import com.google.gson.JsonPrimitive;
 
 public enum JsonNBT {
 
@@ -57,10 +56,15 @@ public enum JsonNBT {
     }
 
     public static NBTTagCompound jsonToCompound(JsonElement json) {
-        if (RogueConfig.getBoolean(RogueConfig.LEGACYNBT)) {
+        if (json.isJsonObject()) {
             return JsonNBT.jsonToCompound(json.getAsJsonObject());
+        } else if (json.isJsonPrimitive()) {
+            JsonPrimitive primitive = json.getAsJsonPrimitive();
+            if (primitive.isString()) {
+                return parseNbtString(primitive.getAsString());
+            }
         }
-        return parseNbtString(json.getAsString());
+        return null;
     }
 
     private static NBTTagCompound parseNbtString(String nbtString) {

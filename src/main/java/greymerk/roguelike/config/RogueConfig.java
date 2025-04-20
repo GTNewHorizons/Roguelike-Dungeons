@@ -23,8 +23,7 @@ public enum RogueConfig {
     DONOVELTYSPAWN,
     UPPERLIMIT,
     LOWERLIMIT,
-    ROGUESPAWNERS,
-    LEGACYNBT;
+    ROGUESPAWNERS;
 
     public static final String configDirName = "config/roguelike_dungeons";
     public static final String configFileName = "roguelike.cfg";
@@ -65,8 +64,6 @@ public enum RogueConfig {
                 return "lowerLimit";
             case ROGUESPAWNERS:
                 return "rogueSpawners";
-            case LEGACYNBT:
-                return "legacyNbt";
             default:
                 return null;
         }
@@ -104,8 +101,6 @@ public enum RogueConfig {
                 return new Tuple(getName(option), 60);
             case ROGUESPAWNERS:
                 return new Tuple(getName(option), true);
-            case LEGACYNBT:
-                return new Tuple(getName(option), false);
             default:
                 return null;
         }
@@ -139,8 +134,6 @@ public enum RogueConfig {
             setInt(LOWERLIMIT, (Integer) getDefault(LOWERLIMIT).getSecond());
         if (!instance.ContainsKey(getName(ROGUESPAWNERS)))
             setBoolean(ROGUESPAWNERS, (Boolean) getDefault(ROGUESPAWNERS).getSecond());
-        if (!instance.ContainsKey(getName(LEGACYNBT)))
-            setBoolean(LEGACYNBT, (Boolean) getDefault(LEGACYNBT).getSecond());
     }
 
     public static double getDouble(RogueConfig option) {
