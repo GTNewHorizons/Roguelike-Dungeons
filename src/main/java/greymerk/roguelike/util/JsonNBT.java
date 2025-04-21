@@ -2,6 +2,9 @@ package greymerk.roguelike.util;
 
 import java.util.Map;
 
+import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagByteArray;
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,9 +17,13 @@ import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 public enum JsonNBT {
 
@@ -33,6 +40,8 @@ public enum JsonNBT {
     COMPOUND,
     INTARRAY;
 
+    private static final Logger logger = LogManager.getLogger();
+
     public static NBTTagCompound jsonToCompound(JsonObject data) {
 
         NBTTagCompound toReturn = new NBTTagCompound();
@@ -44,6 +53,30 @@ public enum JsonNBT {
         }
 
         return toReturn;
+    }
+
+    public static NBTTagCompound jsonToCompound(JsonElement json) {
+        if (json.isJsonObject()) {
+            return JsonNBT.jsonToCompound(json.getAsJsonObject());
+        } else if (json.isJsonPrimitive()) {
+            JsonPrimitive primitive = json.getAsJsonPrimitive();
+            if (primitive.isString()) {
+                return parseNbtString(primitive.getAsString());
+            }
+        }
+        return null;
+    }
+
+    private static NBTTagCompound parseNbtString(String nbtString) {
+        try {
+            NBTBase nbtBase = JsonToNBT.func_150315_a(nbtString);
+            if (nbtBase instanceof NBTTagCompound) {
+                return (NBTTagCompound) nbtBase;
+            }
+        } catch (NBTException e) {
+            logger.debug("Invalid NBT string used in Roguelike-Dungeons config: {}", nbtString);
+        }
+        return null;
     }
 
     public static NBTTagList jsonToList(JsonObject data) {
