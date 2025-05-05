@@ -31,32 +31,64 @@ public class LootRuleManager {
 
             JsonObject rule = ruleElement.getAsJsonObject();
 
-            Treasure type = rule.has("type") ? Treasure.valueOf(rule.get("type").getAsString()) : null;
-
             if (!rule.has("loot")) continue;
             JsonArray data = rule.get("loot").getAsJsonArray();
-            WeightedRandomizer<ItemStack> items = new WeightedRandomizer<ItemStack>(1);
-            for (JsonElement item : data) {
-                items.add(parseProvider(item.getAsJsonObject()));
+            WeightedRandomizer<ItemStack> items = getItems(data);
+            List<Integer> levels = getLevels(rule);
+            List<JsonObject> lootPools = getLootPools(rule);
+            for (JsonObject lootPool : lootPools) {
+                addItemsToLootPoolInLevels(lootPool, levels, items);
             }
 
-            List<Integer> levels = new ArrayList<Integer>();
-            JsonElement levelElement = rule.get("level");
-            if (levelElement.isJsonArray()) {
-                JsonArray levelArray = levelElement.getAsJsonArray();
-                for (JsonElement lvl : levelArray) {
-                    levels.add(lvl.getAsInt());
+        }
+    }
+
+    private WeightedRandomizer<ItemStack> getItems(JsonArray data) {
+        WeightedRandomizer<ItemStack> items = new WeightedRandomizer<ItemStack>(1);
+        for (JsonElement item : data) {
+            items.add(parseProvider(item.getAsJsonObject()));
+        }
+        return items;
+    }
+
+    private static List<Integer> getLevels(JsonObject rule) {
+        List<Integer> levels = new ArrayList<Integer>();
+        JsonElement levelElement = rule.get("level");
+        if (levelElement.isJsonArray()) {
+            JsonArray levelArray = levelElement.getAsJsonArray();
+            for (JsonElement lvl : levelArray) {
+                levels.add(lvl.getAsInt());
+            }
+        } else {
+            levels.add(rule.get("level").getAsInt());
+        }
+        return levels;
+    }
+
+    private static List<JsonObject> getLootPools(JsonObject rule) {
+        List<JsonObject> lootPools = new ArrayList<>();
+        if (rule.has("loot_pools") && rule.get("loot_pools").isJsonArray()) {
+            JsonArray lootPoolsJson = rule.get("loot_pools").getAsJsonArray();
+            for (JsonElement lootPool1 : lootPoolsJson) {
+                if (lootPool1.isJsonObject()) {
+                    lootPools.add(lootPool1.getAsJsonObject());
                 }
-            } else {
-                levels.add(rule.get("level").getAsInt());
             }
+        }
+        if (lootPools.isEmpty()) {
+            lootPools.add(rule);
+        }
+        return lootPools;
+    }
 
-            boolean each = rule.get("each").getAsBoolean();
-            int amount = rule.get("quantity").getAsInt();
+    private void addItemsToLootPoolInLevels(JsonObject lootPool, List<Integer> levels,
+            WeightedRandomizer<ItemStack> items) {
+        Treasure type = lootPool.has("type") ? Treasure.valueOf(lootPool.get("type").getAsString()) : null;
+        boolean each = lootPool.get("each").getAsBoolean();
+        int amount = lootPool.get("quantity").getAsInt();
 
-            for (int level : levels) {
-                this.add(type, items, level, each, amount);
-            }
+        for (int level : levels) {
+            this.add(type, items, level, each, amount);
         }
     }
 
