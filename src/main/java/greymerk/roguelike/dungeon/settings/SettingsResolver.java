@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
@@ -68,52 +71,98 @@ public class SettingsResolver {
         File settingsDir = new File(SETTINGS_DIRECTORY);
         if (!settingsDir.exists() || !settingsDir.isDirectory()) return;
         File[] settingsFiles = settingsDir.listFiles();
+        if (settingsFiles == null) return;
         Arrays.sort(settingsFiles);
 
-        for (int i = 0; i < settingsFiles.length; ++i) {
-            File toParse = settingsFiles[i];
-            DungeonSettings toAdd = null;
+        Map<String, JsonObject> dungeons = readDungeonJsonSettings(settingsFiles);
+        loadDungeonsInDependencyOrder(dungeons, getDungeonDependencies(dungeons));
+    }
+
+    private static Map<String, JsonObject> readDungeonJsonSettings(File[] settingsFiles) {
+        Map<String, JsonObject> dungeons = new HashMap<>();
+        for (File toParse : settingsFiles) {
             try {
-                toAdd = parseFile(toParse);
+                dungeons.put(toParse.getName(), readJson(toParse));
             } catch (Exception e) {
                 System.err.println("Error found in file " + toParse.getName());
                 System.err.println(e.getMessage());
-                continue; // skip this setting
             }
-            settings.put(toAdd.getName(), toAdd);
         }
+        return dungeons;
     }
 
-    private DungeonSettings parseFile(File toParse) throws Exception {
-        String content;
-
+    private static JsonObject readJson(File toParse) throws Exception {
         try {
-            content = Files.toString(toParse, Charsets.UTF_8);
-        } catch (IOException e) {
-            throw new Exception("Error reading file");
-        }
-
-        JsonParser jParser = new JsonParser();
-        JsonObject root = null;
-        DungeonSettings toAdd = null;
-
-        try {
-            root = (JsonObject) jParser.parse(content);
+            return (JsonObject) new JsonParser().parse(readFile(toParse));
         } catch (JsonSyntaxException e) {
-
             Throwable cause = e.getCause();
             throw new Exception(cause.getMessage());
         } catch (Exception e) {
             throw new Exception("An unknown error occurred while parsing json");
         }
+    }
 
+    private static String readFile(File toParse) throws Exception {
         try {
-            toAdd = new DungeonSettings(settings, root);
-        } catch (Exception e) {
-            throw new Exception("An error occured while adding " + toAdd.getName());
+            return Files.toString(toParse, Charsets.UTF_8);
+        } catch (IOException e) {
+            throw new Exception("Error reading file");
         }
+    }
 
-        return toAdd;
+    private static Map<String, List<String>> getDungeonDependencies(Map<String, JsonObject> dungeons) {
+        Map<String, List<String>> dependencies = new HashMap<>();
+        for (Map.Entry<String, JsonObject> dungeon : dungeons.entrySet()) {
+            dependencies.put(dungeon.getKey(), DungeonSettings.readDungeonInheritance(dungeon.getValue()));
+        }
+        return dependencies;
+    }
+
+    private void loadDungeonsInDependencyOrder(Map<String, JsonObject> dungeons,
+            Map<String, List<String>> dungeonDependencies) {
+        Set<String> dungeonsToAdd = new HashSet<>(dungeons.keySet());
+
+        boolean loadedSomeDungeons;
+        do {
+            loadedSomeDungeons = loadDungeons(dungeons, dungeonDependencies, dungeonsToAdd);
+        } while (loadedSomeDungeons);
+
+        logUnloadedDungeons(dungeonsToAdd, dungeonDependencies);
+    }
+
+    private boolean loadDungeons(Map<String, JsonObject> dungeons, Map<String, List<String>> dungeonDependencies,
+            Set<String> dungeonsToAdd) {
+        boolean loadedSomeDungeons = false;
+        for (Iterator<String> it = dungeonsToAdd.iterator(); it.hasNext();) {
+            String dungeonPath = it.next();
+            if (dungeonDependencies.get(dungeonPath).isEmpty()) {
+                JsonObject root = dungeons.get(dungeonPath);
+                String dungeonName = DungeonSettings.readDungeonName(root);
+                loadDungeon(dungeonName, root);
+                for (String otherDungeon : dungeonsToAdd) {
+                    dungeonDependencies.get(otherDungeon).remove(dungeonName);
+                }
+                it.remove();
+                loadedSomeDungeons = true;
+            }
+        }
+        return loadedSomeDungeons;
+    }
+
+    private void loadDungeon(String dungeonName, JsonObject root) {
+        try {
+            settings.put(dungeonName, new DungeonSettings(settings, root));
+        } catch (Exception e) {
+            System.err.println("An error occured while adding " + dungeonName);
+            System.err.println(e.getMessage());
+        }
+    }
+
+    private static void logUnloadedDungeons(Set<String> dungeonsToAdd, Map<String, List<String>> dungeonDependencies) {
+        for (String unloadedDungeon : dungeonsToAdd) {
+            System.err.println("Dungeon " + unloadedDungeon + " not loaded because of unmet dependencies");
+            System.err.println("Unmet dependencies: " + dungeonDependencies.get(unloadedDungeon));
+        }
     }
 
     public DungeonSettings getByName(String name) {

@@ -117,6 +117,7 @@ public class LootRuleManager {
             try {
                 item = new WeightedRandomLoot(data, weight);
             } catch (Exception e) {
+                System.err.println("Invalid loot item replaced with a stick: " + data.toString());
                 System.err.println(e.getMessage());
                 item = new WeightedRandomLoot(Items.stick, 1);
             }
