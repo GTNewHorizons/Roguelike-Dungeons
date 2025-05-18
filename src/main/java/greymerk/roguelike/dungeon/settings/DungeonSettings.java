@@ -38,7 +38,7 @@ public class DungeonSettings implements ISettings {
         levels = new HashMap<Integer, LevelSettings>();
         this.depth = 0;
 
-        this.name = root.get("name").getAsString();
+        this.name = readDungeonName(root);
         if (root.has("criteria")) this.criteria = new SpawnCriteria(root.get("criteria").getAsJsonObject());
         if (root.has("tower")) this.towerSettings = new TowerSettings(root.get("tower"));
         if (root.has("loot_rules")) this.lootRules = new LootRuleManager(root.get("loot_rules"));
@@ -59,17 +59,9 @@ public class DungeonSettings implements ISettings {
             }
         }
 
-        List<String> inheritList = new ArrayList<String>();
-        if (root.has("inherit")) {
-            JsonArray inherit = root.get("inherit").getAsJsonArray();
-            for (JsonElement e : inherit) {
-                inheritList.add(e.getAsString());
-            }
-        }
-
         // generate an inherit base and then apply inherited aspects.
         DungeonSettings base = new SettingsBlank();
-        for (String name : inheritList) {
+        for (String name : readDungeonInheritance(root)) {
             if (settings.containsKey(name)) {
                 base = new DungeonSettings(base, settings.get(name));
             } else {
@@ -103,6 +95,21 @@ public class DungeonSettings implements ISettings {
 
             this.levels.put(i, setting);
         }
+    }
+
+    static String readDungeonName(JsonObject root) {
+        return root.get("name").getAsString();
+    }
+
+    static List<String> readDungeonInheritance(JsonObject root) {
+        List<String> inheritList = new ArrayList<>();
+        if (root.has("inherit")) {
+            JsonArray inherit = root.get("inherit").getAsJsonArray();
+            for (JsonElement e : inherit) {
+                inheritList.add(e.getAsString());
+            }
+        }
+        return inheritList;
     }
 
     public DungeonSettings(DungeonSettings base, DungeonSettings override) {
