@@ -34,6 +34,8 @@ import greymerk.roguelike.dungeon.settings.builtin.SettingsSegments;
 import greymerk.roguelike.dungeon.settings.builtin.SettingsSize;
 import greymerk.roguelike.dungeon.settings.builtin.SettingsSwampTheme;
 import greymerk.roguelike.dungeon.settings.builtin.SettingsTheme;
+import greymerk.roguelike.util.MaterialLibNames;
+import greymerk.roguelike.util.MaterialLibStacks;
 import greymerk.roguelike.util.WeightedChoice;
 import greymerk.roguelike.util.WeightedRandomizer;
 import greymerk.roguelike.worldgen.Coord;
@@ -76,6 +78,8 @@ public class SettingsResolver {
 
         Map<String, JsonObject> dungeons = readDungeonJsonSettings(settingsFiles);
         loadDungeonsInDependencyOrder(dungeons, getDungeonDependencies(dungeons));
+
+        if (MaterialLibNames.isPresent()) MaterialLibStacks.logCounts();
     }
 
     private static Map<String, JsonObject> readDungeonJsonSettings(File[] settingsFiles) {

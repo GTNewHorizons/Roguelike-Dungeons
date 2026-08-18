@@ -11,6 +11,8 @@ import com.google.gson.JsonObject;
 
 import greymerk.roguelike.util.IWeighted;
 import greymerk.roguelike.util.JsonNBT;
+import greymerk.roguelike.util.MaterialLibNames;
+import greymerk.roguelike.util.MaterialLibStacks;
 
 public class WeightedRandomLoot implements Comparable<WeightedRandomLoot>, IWeighted<ItemStack> {
 
@@ -60,13 +62,20 @@ public class WeightedRandomLoot implements Comparable<WeightedRandomLoot>, IWeig
 
     public WeightedRandomLoot(JsonObject json, int weight) throws Exception {
         this.name = json.get("name").getAsString();
-        this.item = (Item) Item.itemRegistry.getObject(name);
-        try {
-            this.item.getUnlocalizedName();
-        } catch (NullPointerException e) {
-            throw new Exception("Invalid item: " + this.name);
+        if (MaterialLibNames.isReference(name)) {
+            ItemStack stack = MaterialLibStacks.resolveItem(name);
+            if (stack == null) throw new Exception("Invalid item: " + this.name);
+            this.item = stack.getItem();
+            this.damage = stack.getItemDamage();
+        } else {
+            this.item = (Item) Item.itemRegistry.getObject(name);
+            try {
+                this.item.getUnlocalizedName();
+            } catch (NullPointerException e) {
+                throw new Exception("Invalid item: " + this.name);
+            }
+            this.damage = json.has("meta") ? json.get("meta").getAsInt() : 0;
         }
-        this.damage = json.has("meta") ? json.get("meta").getAsInt() : 0;
         this.weight = weight;
         this.enchLevel = json.has("ench") ? json.get("ench").getAsInt() : 0;
 
