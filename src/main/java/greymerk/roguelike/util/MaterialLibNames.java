@@ -2,11 +2,10 @@ package greymerk.roguelike.util;
 
 import cpw.mods.fml.common.Loader;
 
-/// Recognises the `ml:<Material>:<shape>` names settings files use to pin a MaterialLib item or block by
-/// material and shape rather than by metadata, which is renumbered between sessions.
+/// Recognises the `ml:<Material>:<shape>` names settings files use to pin a MaterialLib item or block.
+/// Material and shape survive the metadata renumbering between sessions.
 ///
-/// Free of MaterialLib types so it can be called unconditionally; [MaterialLibStacks] holds the imports and
-/// is only reachable once a check here passes.
+/// Carries no MaterialLib types and is safe to call when MaterialLib is absent.
 public final class MaterialLibNames {
 
     private static final String MOD_ID = "materiallib";

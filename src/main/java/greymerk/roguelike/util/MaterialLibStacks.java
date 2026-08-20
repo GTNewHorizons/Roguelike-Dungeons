@@ -10,8 +10,7 @@ import com.ruling_0.materiallib.api.StackResolver;
 
 /// Turns a `ml:<Material>:<shape>` settings name into the stack it pins.
 ///
-/// Sole holder of MaterialLib imports: every call site passes [MaterialLibNames#isReference] or
-/// [MaterialLibNames#isPresent] first, so this class never loads without MaterialLib.
+/// Holds every MaterialLib import in this mod, and must not be loaded unless [MaterialLibNames#isPresent].
 public final class MaterialLibStacks {
 
     private static final Logger logger = LogManager.getLogger();
@@ -36,7 +35,7 @@ public final class MaterialLibStacks {
         return count(stack);
     }
 
-    /// Reports what the settings load just resolved, and clears the tally for the next one.
+    /// Logs the tally of resolved and invalid references, then clears it.
     public static void logCounts() {
         if (resolved + invalid > 0) {
             logger.info("Roguelike Dungeons: resolved {} MaterialLib entries ({} invalid)", resolved, invalid);
