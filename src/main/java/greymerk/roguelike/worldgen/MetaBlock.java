@@ -4,9 +4,13 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.item.ItemStack;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+import greymerk.roguelike.util.MaterialLibNames;
+import greymerk.roguelike.util.MaterialLibStacks;
 
 public class MetaBlock extends BlockBase {
 
@@ -31,10 +35,19 @@ public class MetaBlock extends BlockBase {
     public MetaBlock(JsonElement data) {
         JsonObject json = (JsonObject) data;
         String name = json.get("name").getAsString();
-        this.block = (Block) Block.blockRegistry.getObject(name);
-        meta = json.has("meta") ? json.get("meta").getAsInt() : 0;
         flag = json.has("flag") ? json.get("flag").getAsInt() : 2;
 
+        if (MaterialLibNames.isReference(name)) {
+            ItemStack stack = MaterialLibStacks.resolveBlock(name);
+            if (stack != null) {
+                this.block = Block.getBlockFromItem(stack.getItem());
+                meta = stack.getItemDamage();
+                return;
+            }
+        }
+
+        this.block = (Block) Block.blockRegistry.getObject(name);
+        meta = json.has("meta") ? json.get("meta").getAsInt() : 0;
     }
 
     public MetaBlock(MetaBlock toCopy) {
